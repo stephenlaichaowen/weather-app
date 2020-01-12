@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Weather app</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="assets/css/all.css">
+  <link rel="icon" href="assets/images/weather.png">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.min.js"
+    integrity="sha256-Hhwv1ElzvrH6ZuiIDWEO6xBYW3lmFYrapwcjgXhpL6g=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="app" class="app-wrap">
+    <header>
+      <input type="text" autocomplete="off" class="search-box" placeholder="Search for a city..." v-model="name"
+        @keyup.enter="getInfo">
+    </header>
+    <main>
+      <section class="location" v-for="">
+        <div class="city">{{ city }}</div>
+        <div class="date">{{ day }} {{ date }} {{ month }} {{ year }}</div>
+      </section>
+      <div class="current">
+        <div class="temp">{{ temp }}<span>&#176;C</span></div>
+        <div class="weather">{{ weather }}</div>
+        <div class="hi-low">{{ tempMin }}&#176;C / {{ tempMax }}&#176;C</div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>
+
+<script>
+  const api = {
+    key: '4d6518a119bdca2651f98d1ca0e63f84',
+    base: 'https://api.openweathermap.org/data/2.5/'
+  }
+  const app = new Vue({
+    el: '#app',
+    data: {
+      name: null,
+      city: null,
+      temp: null,
+      tempMin: null,
+      tempMax: null,
+      weather: null,
+      day: null,
+      date: null,
+      month: null,
+      year: null
+    },
+    mounted() {
+      this.getDate()      
+      axios
+        .get(`${api.base}weather?q=taipei&units=metric&APPID=${api.key}`)
+        .then(res => {
+          console.log(res.data)
+          const data = res.data                
+          this.city = data.name
+          this.temp = data.main.temp
+          this.tempMin = data.main.temp_min
+          this.tempMax = data.main.temp_max
+          this.weather = data.weather[0].main
+        })
+    },
+    methods: {
+      getInfo() {
+        this.getDate()
+        this.getWeather()
+      },
+      getDate() {
+        const time = new Date()
+        const day = time.getDay()
+        switch (day) {
+          case 0:
+            this.day = 'Sunday'
+            break;
+          case 1:
+            this.day = 'Monday'
+            break;
+          case 2:
+            this.day = 'Tuesday'
+            break;
+          case 3:
+            this.day = 'Wednesday'
+            break;
+          case 4:
+            this.day = 'Thursday'
+            break;
+          case 5:
+            this.day = 'Friday'
+            break;
+          case 6:
+            this.day = 'Saturday'
+            break;
+        }
+        const month = time.getMonth()
+        switch (month) {
+          case 0:
+            this.month = 'Jan'
+            break;
+          case 1:
+            this.month = 'Feb'
+            break;
+          case 2:
+            this.month = 'March'
+            break;
+          case 3:
+            this.month = 'April'
+            break;
+          case 4:
+            this.month = 'May'
+            break;
+          case 5:
+            this.month = 'June'
+            break;
+          case 6:
+            this.month = 'July'
+            break;
+          case 7:
+            this.month = 'August'
+            break;
+          case 8:
+            this.month = 'Sep'
+            break;
+          case 9:
+            this.month = 'Oct'
+            break;
+          case 10:
+            this.month = 'Nov'
+            break;
+          case 11:
+            this.month = 'Dec'
+            break;
+        }
+        this.year = time.getFullYear()
+        this.date = time.getDate()
+      },
+
+      getWeather() {
+        axios
+          .get(`${api.base}weather?q=${this.name}&units=metric&APPID=${api.key}`)
+          .then(res => {
+            console.log(res.data)
+            const data = res.data
+            this.city = data.name
+            this.temp = data.main.temp
+            this.tempMin = data.main.temp_min
+            this.tempMax = data.main.temp_max
+            this.weather = data.weather[0].main            
+          })
+        this.name = ''
+      }
+    }
+  })
+</script>
+
+<script>
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(registration => {
+        console.log(registration);
+      })
+      .catch(console.error)
+  }
+</script>
